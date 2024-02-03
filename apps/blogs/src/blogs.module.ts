@@ -14,14 +14,24 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     DatabaseModule.forFeature([
       {name: BlogDocument.name, schema: BlogSchema}
     ]),
-    ClientsModule.register([{
-      name: 'USERS_SERVICE',
-      transport: Transport.TCP,
-      options: {
-        host: 'localhost',
-        port: 4010
+    ClientsModule.register([
+      {
+        name: 'USERS_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: 4010
+        }
+      },
+      {
+        name: 'CATEGORIES_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: 4030
+        }
       }
-    }]),
+    ]),
   ],
   controllers: [BlogsController],
   providers: [BlogsService, BlogsRepository],

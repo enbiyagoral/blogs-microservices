@@ -9,11 +9,6 @@ import { AuthGuard, CurrentUser } from '@app/common/auth';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  getHello(): string {
-    return this.usersService.getHello();
-  }
-
   @EventPattern('handleSignup')
   async createUser(@Payload('signupDto') signupDto: SignUpDto) {
     try {
@@ -39,12 +34,9 @@ export class UsersController {
     return this.usersService.findOne({ email: data.email });
   }
 
-  @UseGuards(AuthGuard)
-  @Get('me')
-  async me(
-    @CurrentUser() user: string
-  ){
-    return user
+  @MessagePattern({cmd: 'removeBlogFromUser'})
+  async removeBlogFromUser(@Payload() data:any){
+    return this.usersService.handleRemoveBlogFromUser(data);
   }
 
   @MessagePattern({cmd: 'addBlogFromUser'})

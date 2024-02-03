@@ -15,6 +15,6 @@ export class CreateBlogDto {
   @Length(50, 4000)
   context: string
 
-  // @IsMongoId()
-  // category: ObjectId
+  @IsMongoId()
+  category: ObjectId
 }

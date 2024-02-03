@@ -1,5 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { CreateBlogDto } from './dto';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateBlogDto, UpdateBlogDto } from './dto';
 import { BlogsRepository } from './blogs.repository';
 import { ClientProxy } from '@nestjs/microservices';
 
@@ -7,17 +7,16 @@ import { ClientProxy } from '@nestjs/microservices';
 export class BlogsService {
   constructor(
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
+    @Inject('CATEGORIES_SERVICE') private readonly categoriesClient: ClientProxy,
     private readonly blogsRepository: BlogsRepository
     ){}
   getHello(): string {
     return 'Hello World!';
   }
 
-  async create(userId: string, createBlogDto: CreateBlogDto, file: Express.Multer.File) {
+  async createBlog(userId: string, createBlogDto: CreateBlogDto, file: Express.Multer.File) {
     try {
-      const { title, description, context, 
-        // category 
-      } = createBlogDto
+      const { title, description, context, category } = createBlogDto
 
       const blog = Object.assign({}, createBlogDto, { author: userId})
 
@@ -25,10 +24,15 @@ export class BlogsService {
       console.log(newBlog);
 
       
-      const payload = { blogId: newBlog._id, authorId: newBlog.author};
-      const addBLogFromUser = this.usersClient.send({cmd:'addBlogFromUser'}, payload).toPromise();
-      return newBlog;
+      const userPayload = { blogId: newBlog._id, authorId: newBlog.author};
+      const addBLogFromUser = this.usersClient.send({cmd:'addBlogFromUser'}, userPayload).toPromise();
       
+      const categoryPayload = { categoryId: category, blogId: newBlog._id }
+      const addBlogToCategory = this.categoriesClient.send({cmd: 'addBlogToCategory'}, categoryPayload).toPromise();
+      
+      return newBlog;
+
+
       // if (file) {
       //   console.log('object')
       //   // const uploadPhoto = await this.awsService.uploadPhoto(newBlog.id.toString(), file)
@@ -37,9 +41,7 @@ export class BlogsService {
       //   console.log('Fotoğraf yüklendi!')
       // }
 
-      // const _category = await this.blogsCommonService.getCategoryById(category.toString())
-      // _category.blogs.push(newBlog)
-      // await _category.save()
+     
 
       // const userEmails = await this.blogsCommonService.getSubscriber(userId)
 
@@ -57,5 +59,85 @@ export class BlogsService {
       console.error('Error creating blog:', error)
       throw new Error('Error creating blog')
     }
+  }
+
+  async getBlogBySlug(slug: string) {
+    try {
+      const blog = await this.blogsRepository.findOne({ slug })
+
+      if (!blog) {
+        throw new NotFoundException('Blog not found')
+      }
+
+      return blog
+    }catch (error) {
+      console.error('Error getting blog by id:', error)
+
+      throw new Error('Error getting blog by id')
+    }
+  }
+
+  async updateBlogBySlug(slug: string, updateBlogDto: UpdateBlogDto) {
+    try {
+      const blog = await this.blogsRepository.findOne({ slug })
+      if (!blog) {
+        throw new NotFoundException('Blog not found')
+      }
+      const updatedFields: { [key: string]: any } = {};
+
+      if (updateBlogDto.title !== undefined) {
+        updatedFields.title = updateBlogDto.title;
+      }
+
+      if (updateBlogDto.description !== undefined) {
+        updatedFields.description = updateBlogDto.description;
+      }
+
+      if (updateBlogDto.context !== undefined) {
+        updatedFields.context = updateBlogDto.context;
+      }
+
+      const updatedBlog = await this.blogsRepository.findOneAndUpdate(
+        { _id: blog._id },
+        { $set: updatedFields },
+      );
+
+      if (!updatedBlog) {
+        throw new Error('Error updating blog');
+      }
+
+    return updatedBlog;
+
+    } catch (error) {
+      console.error('Error updating blog by id:', error)
+      throw new Error('Error updating blog by id')
+    }
+  }
+
+  async deleteBlogBySlug(slug: string) {
+    try {
+      const blog = await this.blogsRepository.findOneAndDelete({ slug })
+
+      if (!blog) {
+        throw new NotFoundException('Blog not found')
+      }
+
+      // await this.blogsCommonService.removeCommentFromBlog(blog.id)
+      const userPayload = { authorId: blog.author.toString(), blogId: blog._id}
+      const removeBlogFromUser = this.usersClient.send({cmd: 'removeBlogFromUser'}, userPayload).toPromise();
+      const categoryPayload = { categoryId: blog.category._id, blogId: blog._id};
+      const removeBlogFromCategory = this.categoriesClient.send({cmd: 'removeBlogFromCategory'}, categoryPayload).toPromise();
+      // await this.esService.deleteByQueryBlog(blog.id)
+
+      return blog
+    } catch (error) {
+      console.error('Error deleting blog by id:', error)
+      throw new Error('Error deleting blog by id')
+    }
+  }
+
+  async handleRemoveCategoryFromBlog({updateQuery, updateFields}: any){
+    const result = await this.blogsRepository.updateMany(updateQuery, updateFields);
+    return result;
   }
 }

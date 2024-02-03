@@ -8,7 +8,16 @@ import { Model } from "mongoose";
 export class BlogsRepository extends AbstractRepository<BlogDocument>{
     protected readonly logger = new Logger(BlogsRepository.name);
 
-    constructor(@InjectModel(BlogDocument.name) blogMOdel: Model<BlogDocument>){
-        super(blogMOdel)
+    constructor(@InjectModel(BlogDocument.name) blogModel: Model<BlogDocument>){
+        super(blogModel)
     }
+
+    async updateMany(query: any, update: any) {
+        try {
+          const result = await this.model.updateMany(query, update)
+          return result
+        } catch (error) {
+          throw new Error('Error updating documents')
+        }
+      }
 }

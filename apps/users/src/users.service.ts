@@ -74,5 +74,16 @@ export class UsersService {
     })
     return result;
   }
+
+  async handleRemoveBlogFromUser({blogId, authorId}: any){
+    
+      const blog = await this.usersRepository.findOneAndUpdate({_id: authorId}, {
+
+        $pull: {
+          blogs: blogId,
+        },
+      })
   
+      return blog
+  }
 }

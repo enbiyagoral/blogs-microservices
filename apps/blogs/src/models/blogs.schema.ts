@@ -1,10 +1,9 @@
 import { AbstractDocument } from '@app/common'
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { CategoryDocument } from 'apps/categories/src/models/category.schema'
 import { UserDocument } from 'apps/users/src/models/users.schema'
 import * as mongoose from 'mongoose'
-// import { Category } from '../../category/schemas/category.model'
-// import { Comment } from '../../comments/schemas/comments.model'
-// import { User } from '../../users/schemas/user.model'
+
 import slugify from 'slugify'
 
 @Schema({
@@ -30,12 +29,12 @@ export class BlogDocument extends AbstractDocument{
   publishDate: Date
 
   @Prop(
-    { type: mongoose.Schema.Types.ObjectId, ref: 'UserDocument', required: true }
+    { type: mongoose.Schema.Types.ObjectId, ref: 'UserDocuments', required: true }
     )
   author: UserDocument
 
-//   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category' })
-//   category: Category
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'CategoryDocuments' })
+  category: CategoryDocument
 
   @Prop()
   slug: string
@@ -43,11 +42,11 @@ export class BlogDocument extends AbstractDocument{
   @Prop()
   image: string
 
-//   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
-//   likes: User[]
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserDocuments' }] })
+  likes: UserDocument[]
 
-//   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
-//   saves: User[]
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserDocuments' }] })
+  saves: UserDocument[]
 }
 
 export const BlogSchema = SchemaFactory.createForClass(BlogDocument)
