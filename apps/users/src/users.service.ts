@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { SignUpDto } from 'apps/auth/src/dto/sign-up.dto';
 import * as bcrypt from 'bcrypt';
@@ -6,10 +6,13 @@ import { SignInDto } from 'apps/auth/src/dto/sign-in.dto';
 import { NotFoundError } from 'rxjs';
 import { UserDocument } from './models/users.schema';
 import { FilterQuery } from 'mongoose';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository){}
+  constructor(
+    @Inject('BLOGS_CLIENT') private readonly blogsClient: ClientProxy,
+    private readonly usersRepository: UsersRepository){}
   getHello(): string {
     return 'Hello World! Users';
   }
@@ -48,6 +51,87 @@ export class UsersService {
       console.log(error)
     }
   };
+
+  async follow(userId: string, id: string) {
+    const myUser = await this.usersRepository.findOne({ _id: userId })
+    const otherUser = await this.usersRepository.findOne({ _id: id })
+    
+    if (otherUser._id == myUser._id) throw new BadRequestException('Kendinizi takip edemezsiniz')
+
+    if (
+      !myUser.following?.map(String).includes(otherUser._id.toString()) &&
+      !otherUser.followers?.map(String).includes(myUser._id.toString())
+      ) {
+      const newMyUser = await this.usersRepository.findOneAndUpdate({_id: myUser._id}, {
+        $push: {
+          following: otherUser._id,
+        },
+      })
+
+      const newOtherUser = await this.usersRepository.findOneAndUpdate({_id: otherUser._id}, {
+        $push: {
+         followers: myUser._id,
+        },
+      })
+
+      return { newMyUser, newOtherUser }
+    }
+
+    return "Zaten Takip ediyorsunuz"
+  }
+
+  async unFollow(userId: string, id: string) {
+    const myUser = await this.usersRepository.findOne({ _id: userId })
+    const otherUser = await this.usersRepository.findOne({ _id: id })
+
+    if (otherUser._id == myUser._id) throw new BadRequestException('Kendinizi takip edemezsiniz')
+
+    if (
+      myUser.following?.map(String).includes(otherUser._id.toString()) && 
+      otherUser.followers?.map(String).includes(myUser._id.toString())
+      ) {
+      const newMyUser = await this.usersRepository.findOneAndUpdate({_id: myUser._id}, {
+        $pull: {
+          following: otherUser._id,
+        },
+      })
+
+      const newOtherUser = await this.usersRepository.findOneAndUpdate({_id: otherUser._id}, {
+        $pull: {
+          followers: myUser._id,
+        },
+      })
+      return { newMyUser, newOtherUser }
+    }
+
+    return "Zaten Takip etmiyorsunuz"
+  }
+
+  async deleteUser(id: string) {
+    const user = await this.usersRepository.findOneAndDelete({_id:id})
+
+    const updateQuery = {
+      $or: [{ followers: id }, { following: id }],
+    }
+
+    const updateFields = {
+      $pull: {
+        followers: id,
+        following: id,
+      },
+    }
+
+    await this.usersRepository.updateMany(updateQuery, updateFields)
+    const deleteBlogsFromByUser = this.blogsClient.send({cmd: 'deleteBlogsFromByUser'}, { authorId: id}).toPromise();
+
+    return user
+  }
+
+  async getLikesByUsername(username: string) {
+    const result = await this.usersRepository.findOne({ username })
+    return result.liked
+  }
+
 
   async getUser(signInDto:SignInDto){
     try {

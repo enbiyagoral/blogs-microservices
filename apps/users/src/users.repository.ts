@@ -11,4 +11,13 @@ export class UsersRepository extends AbstractRepository<UserDocument> {
   constructor(@InjectModel(UserDocument.name) userModel: Model<UserDocument>) {
     super(userModel);
   }
+
+  async updateMany(query: any, update: any) {
+    try {
+      const result = await this.model.updateMany(query, update)
+      return result
+    } catch (error) {
+      throw new Error('Error updating documents')
+    }
+  }
 }

@@ -227,4 +227,10 @@ export class BlogsService {
     const result = await this.blogsRepository.updateMany(updateQuery, updateFields);
     return result;
   }
+
+  async handleDeleteBlogsFromByUser({authorId}: any){
+    const result = await this.blogsRepository.deleteMany({author: authorId})
+    console.log(result);
+    return result;
+  }
 }

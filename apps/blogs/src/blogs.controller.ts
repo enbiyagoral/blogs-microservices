@@ -59,7 +59,12 @@ export class BlogsController {
   }
 
   @MessagePattern({cmd: 'removeCategoryFromBlog'})
-  async handleRemoveCategoryFromBlog(@Payload() data: any){
+  async removeCategoryFromBlog(@Payload() data: any){
     return await this.blogsService.handleRemoveCategoryFromBlog(data);
+  }
+
+  @MessagePattern({cmd: 'deleteBlogsFromByUser'})
+  async deleteBlogsFromByUser(@Payload() data: any){
+    return await this.blogsService.handleDeleteBlogsFromByUser(data);
   }
 }

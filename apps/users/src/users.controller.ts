@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards,} from '@nestjs/common';
+import { Controller, Delete, Get, Inject, Param, Patch, UseGuards,} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { SignUpDto } from 'apps/auth/src/dto/sign-up.dto';
@@ -7,7 +7,31 @@ import { AuthGuard, CurrentUser } from '@app/common/auth';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService) {}
+
+  @UseGuards(AuthGuard)
+  @Patch('follow/:id')
+  async follow(@CurrentUser() userId: string, @Param('id') id: string) {
+    return await this.usersService.follow(userId, id)
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('unfollow/:id')
+  async unFollow(@CurrentUser() userId: string, @Param('id') id: string) {
+    return await this.usersService.unFollow(userId, id)
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('/delete-user')
+  async deleteUser(@CurrentUser() user: string) {
+    return this.usersService.deleteUser(user)
+  }
+
+  @Get('/:username/likes')
+  async getLikes(@Param('username') username: string) {
+    return this.usersService.getLikesByUsername(username)
+  }
 
   @EventPattern('handleSignup')
   async createUser(@Payload('signupDto') signupDto: SignUpDto) {
@@ -54,7 +78,6 @@ export class UsersController {
     return this.usersService.handleRemoveSaveToUser(data);
   }
   
-
   @MessagePattern({cmd: 'addBlogFromUser'})
   async addBlogFromUser(@Payload() data: any){
     console.log(data)

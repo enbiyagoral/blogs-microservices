@@ -2,7 +2,7 @@ import { AbstractRepository } from "@app/common";
 import { Injectable, Logger } from "@nestjs/common";
 import { BlogDocument } from "./models/blogs.schema";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 
 @Injectable()
 export class BlogsRepository extends AbstractRepository<BlogDocument>{
@@ -19,5 +19,10 @@ export class BlogsRepository extends AbstractRepository<BlogDocument>{
         } catch (error) {
           throw new Error('Error updating documents')
         }
+      }
+
+      async deleteMany(filter: FilterQuery<BlogDocument>) {
+        const result = await this.model.deleteMany(filter)
+        return result
       }
 }
