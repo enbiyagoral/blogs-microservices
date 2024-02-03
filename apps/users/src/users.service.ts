@@ -66,6 +66,42 @@ export class UsersService {
     this.usersRepository.findOne(query)
   }
 
+  async handleAddLikeToUser({userId, blogId}: any){
+    const result = await this.usersRepository.findOneAndUpdate({_id: userId}, {
+      $push: {
+        liked: blogId,
+      }
+    })
+    return result;
+  }
+
+  async handleRemoveLikeToUser({userId, blogId}: any){
+    const result = await this.usersRepository.findOneAndUpdate({_id: userId}, {
+      $pull: {
+        liked: blogId,
+      }
+    })
+    return result;
+  }
+  
+  async handleAddSaveToUser({userId, blogId}: any){
+    const result = await this.usersRepository.findOneAndUpdate({_id: userId}, {
+      $push: {
+        saved: blogId,
+      }
+    })
+    return result;
+  }
+
+  async handleRemoveSaveToUser({userId, blogId}: any){
+    const result = await this.usersRepository.findOneAndUpdate({_id: userId}, {
+      $pull: {
+        saved: blogId,
+      }
+    })
+    return result;
+  }
+
   async handleAddBlogFromUser(data){
     const result = await this.usersRepository.findOneAndUpdate({_id: data.authorId}, {
       $push: {

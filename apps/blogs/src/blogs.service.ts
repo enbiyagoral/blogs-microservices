@@ -114,6 +114,93 @@ export class BlogsService {
     }
   }
 
+  async liketoBlog(slug: string, currentUser) {
+    const blog = await this.blogsRepository.findOne({ slug })
+
+    if (!blog) {
+      throw new NotFoundException('Blog not found')
+    }
+    console.log(blog.likes);
+    if (!blog.likes.map(String).includes(currentUser)) {
+      // User
+      const userPayload = { userId: currentUser, blogId: blog._id}
+      const addLikeToUser = this.usersClient.send({cmd: 'addLikeToUser'}, userPayload).toPromise();
+
+      return await this.blogsRepository.findOneAndUpdate({slug}, {
+        $push: {
+          likes: currentUser
+        }
+      });
+      
+    }
+    return 'Already Liked to Blog'
+  }
+
+  async unliketoBlog(slug: string, currentUser) {
+    const blog = await this.blogsRepository.findOne({ slug })
+    if (!blog) {
+      throw new NotFoundException('Blog not found')
+    }
+
+    if (blog.likes.map(String).includes(currentUser)) {
+      // User,
+      const userPayload = { userId: currentUser, blogId: blog._id}
+      const removeLikeToUser = this.usersClient.send({cmd: 'removeLikeToUser'}, userPayload).toPromise();
+
+      return await this.blogsRepository.findOneAndUpdate({slug}, {
+        $pull: {
+          likes: currentUser
+        }
+      });
+    }
+
+    return 'Already Not liked to Blog'
+  }
+
+  async savetoBlog(slug: string, currentUser) {
+    const blog = await this.blogsRepository.findOne({ slug })
+    if (!blog) {
+      throw new NotFoundException('Blog not found')
+    }
+
+    if (!blog.saves.map(String).includes(currentUser)) {
+      // User
+      const userPayload = { userId: currentUser, blogId: blog._id}
+      const addSaveToUser = this.usersClient.send({cmd: 'addSaveToUser'}, userPayload).toPromise();
+
+      return await this.blogsRepository.findOneAndUpdate({slug}, {
+        $push: {
+          saves: currentUser
+        }
+      });
+    }
+    return 'Already Saved to Blog'
+  }
+
+  async unsavetoBlog(slug: string, currentUser) {
+    const blog = await this.blogsRepository.findOne({ slug: slug })
+
+    if (!blog) {
+      throw new NotFoundException('Blog not found')
+    }
+
+    if (blog.saves.map(String).includes(currentUser)) {
+      // User
+      // await this.blogsCommonService.removeSavedFromUser(currentUser, blog.id)
+
+      const userPayload = { userId: currentUser, blogId: blog._id}
+      const removeSaveToUser = this.usersClient.send({cmd: 'removeSaveToUser'}, userPayload).toPromise();
+
+      return await this.blogsRepository.findOneAndUpdate({slug}, {
+        $pull: {
+          saves: currentUser
+        }
+      });
+    }
+    return 'Already Not Saved to Blog'
+  }
+
+
   async deleteBlogBySlug(slug: string) {
     try {
       const blog = await this.blogsRepository.findOneAndDelete({ slug })

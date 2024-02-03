@@ -34,14 +34,37 @@ export class UsersController {
     return this.usersService.findOne({ email: data.email });
   }
 
-  @MessagePattern({cmd: 'removeBlogFromUser'})
-  async removeBlogFromUser(@Payload() data:any){
-    return this.usersService.handleRemoveBlogFromUser(data);
+  @MessagePattern({cmd: 'addLikeToUser'})
+  async addLikeToUser(@Payload() data: any){
+    return this.usersService.handleAddLikeToUser(data);
   }
+
+  @MessagePattern({cmd: 'removeLikeToUser'})
+  async removeLikeToUser(@Payload() data: any){
+    return this.usersService.handleRemoveLikeToUser(data);
+  }
+
+  @MessagePattern({cmd: 'addSaveToUser'})
+  async addSaveToUser(@Payload() data: any){
+    return this.usersService.handleAddSaveToUser(data);
+  }
+
+  @MessagePattern({cmd: 'removeSaveToUser'})
+  async removeSaveToUser(@Payload() data: any){
+    return this.usersService.handleRemoveSaveToUser(data);
+  }
+  
 
   @MessagePattern({cmd: 'addBlogFromUser'})
   async addBlogFromUser(@Payload() data: any){
     console.log(data)
     return this.usersService.handleAddBlogFromUser(data);
   }
+
+  @MessagePattern({cmd: 'removeBlogFromUser'})
+  async removeBlogFromUser(@Payload() data:any){
+    return this.usersService.handleRemoveBlogFromUser(data);
+  }
+
+  
 }
