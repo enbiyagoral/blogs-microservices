@@ -1,0 +1,38 @@
+import { Module } from '@nestjs/common';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { DatabaseModule } from '@app/common';
+import { UserDocument, UserSchema } from './models/users.schema';
+import { UsersRepository } from './users.repository';
+import { JwtModule } from '@nestjs/jwt';
+
+@Module({
+  imports: [
+    JwtModule,
+    DatabaseModule,
+    DatabaseModule.forFeature([
+      {name: UserDocument.name, schema: UserSchema}
+    ]),
+    ClientsModule.register([{
+      name: 'AUTH_CLIENT',
+      transport: Transport.TCP,
+      options: {
+        host: 'localhost',
+        port: 4000
+      }
+    },
+    {
+      name: 'BLOGS_CLIENT',
+      transport: Transport.TCP,
+      options: {
+        host: 'localhost',
+        port: 4020
+      }
+    }
+    ])
+  ],
+  controllers: [UsersController],
+  providers: [UsersService, UsersRepository],
+})
+export class UsersModule {}
