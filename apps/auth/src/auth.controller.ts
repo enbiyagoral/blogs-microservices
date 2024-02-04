@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Patch, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignUpDto } from './dto/sign-up.dto';
-import { SignInDto } from './dto/sign-in.dto';
 import { MessagePattern } from '@nestjs/microservices';
+import { ChangePasswordDto, SignInDto, SignUpDto } from './dto/index';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +20,16 @@ export class AuthController {
   @Post('login')
   async handleLogin(@Body() signInDto:SignInDto){
     return await this.authService.handleLogin(signInDto);
+  }
+
+  @Post('/forgot-password-request')
+  forgotPasswordRequest(@Body('email') email: string) {
+    return this.authService.forgotPasswordRequest(email)
+  }
+
+  @Patch('/forgot-password/')
+  forgotPassword(@Body() changePasswordDto: ChangePasswordDto, @Query('token') token: string, @Query('id') id: string) {
+    return this.authService.forgotPassword(token, id, changePasswordDto)
   }
 
   @MessagePattern({ role: 'auth', cmd: 'check'})

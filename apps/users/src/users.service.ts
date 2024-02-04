@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { SignUpDto } from 'apps/auth/src/dto/sign-up.dto';
 import * as bcrypt from 'bcrypt';
@@ -7,6 +7,7 @@ import { NotFoundError } from 'rxjs';
 import { UserDocument } from './models/users.schema';
 import { FilterQuery } from 'mongoose';
 import { ClientProxy } from '@nestjs/microservices';
+import { RePasswordDto } from './dto';
 
 @Injectable()
 export class UsersService {
@@ -147,7 +148,52 @@ export class UsersService {
   };
 
   async findOne(query: FilterQuery<UserDocument>){
-    this.usersRepository.findOne(query)
+    const user = await this.usersRepository.findOne(query);
+    return { _id: user._id, password:user.password }
+  }
+
+  async resetPassword(userId: string, rePasswordDto: RePasswordDto) {
+    const user = await this.usersRepository.findOne({ _id: userId })
+    if (!user) throw new UnauthorizedException()
+
+    const isCheckPassword = await bcrypt.compare(rePasswordDto.password, user.password)
+
+    if (!isCheckPassword) throw new UnauthorizedException('Eski şifreniz yanlış girildi.')
+
+    if (rePasswordDto.newPassword !== rePasswordDto.confirmPassword){
+      throw new UnauthorizedException('Girmek istediğiniz yeni şifreler aynı değil.')
+    }
+
+    const isSamePassword = await bcrypt.compare(rePasswordDto.confirmPassword, user.password);
+    if (isSamePassword) {
+      throw new UnauthorizedException('Eski şifreniz ile yeni şifreniz aynı olamaz!')
+    }
+
+    const hashedPassword = await bcrypt.hash(rePasswordDto.confirmPassword, 10)
+
+    const updatedPasswordByUser = await this.usersRepository.findOneAndUpdate({_id: user._id}, {
+      $set: {
+        password: hashedPassword
+      }
+    });
+
+    return 'Şifreniz Başarıyla Güncellendi!'
+  }
+
+
+  async handleGetUserById(query: FilterQuery<UserDocument>){
+    const user = await this.usersRepository.findOne(query);
+    return { _id: user._id, password:user.password }
+  }
+
+  async handleUpdatePasswordByUser({_id, password}: any){
+    const user = await this.usersRepository.findOneAndUpdate({_id},{
+      $set: {
+        password
+      }
+    });
+
+    return user
   }
 
   async handleAddLikeToUser({userId, blogId}: any){

@@ -1,9 +1,10 @@
-import { Controller, Delete, Get, Inject, Param, Patch, UseGuards,} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, UseGuards,} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { SignUpDto } from 'apps/auth/src/dto/sign-up.dto';
 import { SignInDto } from 'apps/auth/src/dto/sign-in.dto';
 import { AuthGuard, CurrentUser } from '@app/common/auth';
+import { RePasswordDto } from './dto';
 
 @Controller('users')
 export class UsersController {
@@ -32,6 +33,12 @@ export class UsersController {
   async getLikes(@Param('username') username: string) {
     return this.usersService.getLikesByUsername(username)
   }
+  
+  @UseGuards(AuthGuard)
+  @Post('/reset-password')
+  async resetPassword(@CurrentUser() user: string, @Body() rePasswordDto: RePasswordDto) {
+    return this.usersService.resetPassword(user, rePasswordDto)
+  }
 
   @EventPattern('handleSignup')
   async createUser(@Payload('signupDto') signupDto: SignUpDto) {
@@ -56,6 +63,11 @@ export class UsersController {
   @MessagePattern({cmd: 'get' })
   getUser1(data: any){
     return this.usersService.findOne({ email: data.email });
+  }
+
+  @MessagePattern({cmd: 'getUseById' })
+  getUserById(data: any){
+    return this.usersService.handleGetUserById({ _id: data._id });
   }
 
   @MessagePattern({cmd: 'addLikeToUser'})
@@ -89,11 +101,14 @@ export class UsersController {
     return this.usersService.handleRemoveBlogFromUser(data);
   }
 
-
-  // DASHBOARD SERVICING 
   @MessagePattern({cmd: 'getFollowingUsers'})
   async getFollowingUsers(@Payload() data:any){
     return this.usersService.handleGetFollowingUsers(data);
+  }
+
+  @MessagePattern({cmd: 'updatedPasswordByUser'})
+  async updatedPasswordByUser(@Payload() data: any){
+    return this.usersService.handleUpdatePasswordByUser({_id:data._id, password: data.password});
   }
 
   
