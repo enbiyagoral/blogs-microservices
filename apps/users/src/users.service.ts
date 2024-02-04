@@ -206,4 +206,10 @@ export class UsersService {
   
       return blog
   }
+
+  async handleGetFollowingUsers({_id}: any){
+    const users = await this.usersRepository.findOne({ _id })
+    console.log(users.following);
+    return users.following
+  }
 }

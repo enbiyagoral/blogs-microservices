@@ -89,5 +89,12 @@ export class UsersController {
     return this.usersService.handleRemoveBlogFromUser(data);
   }
 
+
+  // DASHBOARD SERVICING 
+  @MessagePattern({cmd: 'getFollowingUsers'})
+  async getFollowingUsers(@Payload() data:any){
+    return this.usersService.handleGetFollowingUsers(data);
+  }
+
   
 }

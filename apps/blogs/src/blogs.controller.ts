@@ -67,4 +67,19 @@ export class BlogsController {
   async deleteBlogsFromByUser(@Payload() data: any){
     return await this.blogsService.handleDeleteBlogsFromByUser(data);
   }
+
+  @MessagePattern({cmd: 'getMostLikedBlogs'})
+  async getMostLikedBlogs(@Payload() data:any){
+    return await this.blogsService.handleGetMostLikedBlogs(data);
+  }
+
+  @MessagePattern({cmd: 'getMostSavedBlogs'})
+  async getMostSavedBlogs(@Payload() data:any){
+    return await this.blogsService.handleGetMostSavedBlogs(data);
+  }
+
+  @MessagePattern({cmd: 'findBlogsByUserId'})
+  async findBlogsByUserId(@Payload() data:any){
+    return await this.blogsService.handleFindBlogsByUserId(data);
+  }
 }

@@ -1,12 +1,24 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
+import { AuthGuard, CurrentUser } from '@app/common/auth';
 
-@Controller()
+@UseGuards(AuthGuard)
+@Controller('dashboard')
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get()
-  getHello(): string {
-    return this.dashboardService.getHello();
+  getHomePage(@CurrentUser() currentUserId: string) {
+    return this.dashboardService.getHomePage(currentUserId)
+  }
+
+  @Get('/most-like')
+  getMostLikedBlogs() {
+    return this.dashboardService.getMostLikedBlogs()
+  }
+
+  @Get('/most-saved')
+  getMostSavedBlogs() {
+    return this.dashboardService.getMostSavedBlogs()
   }
 }

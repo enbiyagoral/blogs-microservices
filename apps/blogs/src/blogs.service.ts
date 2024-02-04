@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBlogDto, UpdateBlogDto } from './dto';
 import { BlogsRepository } from './blogs.repository';
 import { ClientProxy } from '@nestjs/microservices';
+import { BlogDocument } from './models/blogs.schema';
 
 @Injectable()
 export class BlogsService {
@@ -233,4 +234,34 @@ export class BlogsService {
     console.log(result);
     return result;
   }
+
+  async handleGetMostLikedBlogs({ payload }: any) {
+    const filter: string = payload;
+  
+    const blogs = await this.blogsRepository.find({});
+    
+    const result = blogs.sort((a: BlogDocument, b: BlogDocument) => {
+      return b[filter] - a[filter];
+    });
+  
+    return result;
+  }
+
+  async handleGetMostSavedBlogs({payload}: any){
+    const filter: string = payload;
+  
+    const blogs = await this.blogsRepository.find({});
+    
+    const result = blogs.sort((a: BlogDocument, b: BlogDocument) => {
+      return b[filter] - a[filter];
+    });
+  
+    return result;
+  }
+
+  async handleFindBlogsByUserId({payload}: any){
+    return await this.blogsRepository.find({ author: { $in: [payload._id] } });
+    
+  }
+  
 }
