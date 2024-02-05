@@ -6,6 +6,8 @@ import { DatabaseModule } from '@app/common';
 import { UserDocument, UserSchema } from './models/users.schema';
 import { UsersRepository } from './users.repository';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
 
 @Module({
   imports: [
@@ -14,6 +16,12 @@ import { JwtModule } from '@nestjs/jwt';
     DatabaseModule.forFeature([
       {name: UserDocument.name, schema: UserSchema}
     ]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        MONGODB_URI: Joi.string().required(),
+      })
+    }),
     ClientsModule.register([{
       name: 'AUTH_CLIENT',
       transport: Transport.TCP,
