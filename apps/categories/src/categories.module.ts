@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
-import { DatabaseModule } from '@app/common';
+import { DatabaseModule, LoggerModule } from '@app/common';
 import { CategoryDocument, CategorySchema } from './models/category.schema';
 import { CategoriesRepository } from './categories.repository';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -15,6 +15,7 @@ import * as Joi from 'joi'
     DatabaseModule.forFeature([
       { name: CategoryDocument.name, schema: CategorySchema }
     ]),
+    LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({

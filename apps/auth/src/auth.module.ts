@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
 import constants from '../../../libs/common/src/auth/constants';
+import { LoggerModule } from '@app/common';
 
 
 @Module({
@@ -18,6 +19,7 @@ import constants from '../../../libs/common/src/auth/constants';
         }
       },
     ]),
+    LoggerModule,
     JwtModule.register({
       secret: constants.jwtSecret,
       signOptions: { expiresIn: '30d' }

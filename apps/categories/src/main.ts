@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { CategoriesModule } from './categories.module';
 import { Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(CategoriesModule);
@@ -13,6 +14,7 @@ async function bootstrap() {
     }
   })
   app.useGlobalPipes(new ValidationPipe());
+  app.useLogger(app.get(Logger));
   app.startAllMicroservices()
   await app.listen(3030);
 }

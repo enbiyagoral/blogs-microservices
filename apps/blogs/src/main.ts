@@ -1,10 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { BlogsModule } from './blogs.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { Transport } from '@nestjs/microservices';
+import { Logger } from 'nestjs-pino'
+
 
 async function bootstrap() {
   const app = await NestFactory.create(BlogsModule);
+  app.useGlobalPipes(new ValidationPipe())
+  app.useLogger(app.get(Logger));
   app.connectMicroservice({
     transport: Transport.TCP,
     options: {
@@ -12,10 +16,8 @@ async function bootstrap() {
       port: 4020
     }
   })
-  app.useGlobalPipes(new ValidationPipe())
 
   await app.startAllMicroservices()
   await app.listen(3020);
-  Logger.log('Blogs microservice running! TCP_PORT: 4020')
 }
 bootstrap();

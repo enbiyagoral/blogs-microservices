@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { DatabaseModule } from '@app/common';
+import { DatabaseModule, LoggerModule } from '@app/common';
 import { UserDocument, UserSchema } from './models/users.schema';
 import { UsersRepository } from './users.repository';
 import { JwtModule } from '@nestjs/jwt';
@@ -16,6 +16,7 @@ import * as Joi from 'joi';
     DatabaseModule.forFeature([
       {name: UserDocument.name, schema: UserSchema}
     ]),
+    LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({

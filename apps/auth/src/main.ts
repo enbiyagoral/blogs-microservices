@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './auth.module';
 import { Transport } from '@nestjs/microservices';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
@@ -13,9 +14,8 @@ async function bootstrap() {
     }
   })
   app.useGlobalPipes(new ValidationPipe());
-
+  app.useLogger(app.get(Logger))
   await app.startAllMicroservices()
   await app.listen(3000);
-  Logger.log('Auth microservice running! TCP_PORT: 4000')
 }
 bootstrap();

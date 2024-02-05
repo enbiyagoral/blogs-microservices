@@ -7,7 +7,10 @@ import { BlogsRepository } from './blogs.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from '@app/common';
 import * as Joi from 'joi';
+
+
 @Module({
   imports: [
     JwtModule,
@@ -15,6 +18,7 @@ import * as Joi from 'joi';
     DatabaseModule.forFeature([
       {name: BlogDocument.name, schema: BlogSchema}
     ]),
+    LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
@@ -39,6 +43,7 @@ import * as Joi from 'joi';
         }
       }
     ]),
+
   ],
   controllers: [BlogsController],
   providers: [BlogsService, BlogsRepository],

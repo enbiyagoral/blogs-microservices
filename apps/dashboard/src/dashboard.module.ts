@@ -3,10 +3,12 @@ import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { LoggerModule } from '@app/common';
 
 @Module({
   imports: [
     JwtModule,
+    LoggerModule,
     ClientsModule.register([
       {
         name: 'USERS_SERVICE',
