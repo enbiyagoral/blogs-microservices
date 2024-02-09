@@ -6,7 +6,7 @@ import { ClientProxy } from '@nestjs/microservices';
 @Injectable()
 export class CategoriesService {
   constructor(
-    @Inject('BLOGS_SERVICE') private readonly blogsClient: ClientProxy,
+    @Inject('BLOGS_CLIENT') private readonly blogsClient: ClientProxy,
     private readonly categoriesRepository: CategoriesRepository){}
   getHello(): string {
     return 'Hello World!';

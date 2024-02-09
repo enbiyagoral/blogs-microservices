@@ -23,22 +23,23 @@ import * as Joi from 'joi';
         MONGODB_URI: Joi.string().required(),
       })
     }),
-    ClientsModule.register([{
-      name: 'AUTH_CLIENT',
-      transport: Transport.TCP,
-      options: {
-        host: 'localhost',
-        port: 4000
-      }
-    },
-    {
-      name: 'BLOGS_CLIENT',
-      transport: Transport.TCP,
-      options: {
-        host: 'localhost',
-        port: 4020
-      }
-    }
+    ClientsModule.register([
+      {
+        name: 'AUTH_CLIENT',
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: 4000
+        }
+      },
+      {
+        name: 'BLOGS_CLIENT',
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: 4020
+        }
+      },
     ])
   ],
   controllers: [UsersController],

@@ -70,6 +70,12 @@ export class UsersController {
     return this.usersService.handleGetUserById({ _id: data._id });
   }
 
+  @MessagePattern({cmd: 'getSubscriber' })
+  getSubscriber(@Payload() data: any){
+    console.log("DENEME1",data);
+    return this.usersService.handleGetSubscriber(data);
+  }
+
   @MessagePattern({cmd: 'addLikeToUser'})
   async addLikeToUser(@Payload() data: any){
     return this.usersService.handleAddLikeToUser(data);

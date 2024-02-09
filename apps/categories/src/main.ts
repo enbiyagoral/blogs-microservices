@@ -6,13 +6,15 @@ import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(CategoriesModule);
+
   app.connectMicroservice({
     transport: Transport.TCP,
     options: {
-      host: '127.0.0.1',
+      host: 'localhost',
       port: 4030
     }
-  })
+  });
+  
   app.useGlobalPipes(new ValidationPipe());
   app.useLogger(app.get(Logger));
   app.startAllMicroservices()

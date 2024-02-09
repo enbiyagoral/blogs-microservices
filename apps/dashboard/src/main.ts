@@ -11,7 +11,8 @@ async function bootstrap() {
       host: 'localhost',
       port: 4040
     }
-  })
+  });
+  
   app.useLogger(app.get(Logger))
   await app.listen(3040);
 }

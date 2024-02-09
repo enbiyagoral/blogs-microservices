@@ -11,7 +11,7 @@ import { LoggerModule } from '@app/common';
     LoggerModule,
     ClientsModule.register([
       {
-        name: 'USERS_SERVICE',
+        name: 'USERS_CLIENT',
         transport: Transport.TCP,
         options: {
           host: 'localhost',
@@ -20,7 +20,7 @@ import { LoggerModule } from '@app/common';
       },
 
       {
-        name: 'BLOGS_SERVICE',
+        name: 'BLOGS_SCLIENT',
         transport: Transport.TCP,
         options: {
           host: 'localhost',

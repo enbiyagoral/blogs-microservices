@@ -7,6 +7,7 @@ import { CategoriesRepository } from './categories.repository';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi'
+import { join } from 'path';
 
 
 @Module({
@@ -24,7 +25,7 @@ import * as Joi from 'joi'
     }),
     ClientsModule.register([
       { 
-        name: 'BLOGS_SERVICE',
+        name: 'BLOGS_CLIENT',
         transport: Transport.TCP,
         options: {
           host: 'localhost',

@@ -1,12 +1,13 @@
 import { Controller, Get } from '@nestjs/common';
 import { AwsService } from './aws.service';
+import { EventPattern, MessagePattern, Payload, Transport } from '@nestjs/microservices';
 
-@Controller()
+@Controller("aws")
 export class AwsController {
   constructor(private readonly awsService: AwsService) {}
 
-  @Get()
-  getHello(): string {
-    return this.awsService.getHello();
-  }
+  @MessagePattern({cmd: 'uploadedPhoto'})
+  async deneme(@Payload() {blogId, file}: any){
+      return await this.awsService.uploadPhoto(blogId, file);
+    }
 }

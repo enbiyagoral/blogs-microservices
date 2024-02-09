@@ -6,7 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import constants from '../../../libs/common/src/auth/constants';
 import { LoggerModule } from '@app/common';
 
-
 @Module({
   imports: [
     ClientsModule.register([
@@ -14,7 +13,7 @@ import { LoggerModule } from '@app/common';
         name: 'USERS_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: '127.0.0.1',
+          host: 'localhost',
           port: 4010,      
         }
       },

@@ -4,8 +4,8 @@ import { ClientProxy } from '@nestjs/microservices';
 @Injectable()
 export class DashboardService {
   constructor(
-    @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
-    @Inject('BLOGS_SERVICE') private readonly blogsClient: ClientProxy
+    @Inject('USERS_CLIENT') private readonly usersClient: ClientProxy,
+    @Inject('BLOGS_CLIENT') private readonly blogsClient: ClientProxy
     ){}
 
 

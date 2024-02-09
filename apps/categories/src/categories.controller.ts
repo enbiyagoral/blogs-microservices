@@ -34,6 +34,7 @@ export class CategoriesController {
 
   @MessagePattern({cmd: 'addBlogToCategory'})
   async addBlogToCategory(@Payload() data: any){
+    console.log(data);
     return this.categoriesService.handleAddBlogToCategory(data);
   }
 
@@ -41,4 +42,6 @@ export class CategoriesController {
   async removeBlogFromCategory(@Payload() data:any){
     return this.categoriesService.handleRemoveBlogFromCategory(data);
   }
+
+ 
 }

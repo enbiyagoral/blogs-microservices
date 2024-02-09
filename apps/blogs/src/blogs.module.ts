@@ -26,7 +26,7 @@ import * as Joi from 'joi';
       })
     }),
     ClientsModule.register([
-      {
+      { 
         name: 'USERS_SERVICE',
         transport: Transport.TCP,
         options: {
@@ -34,14 +34,30 @@ import * as Joi from 'joi';
           port: 4010
         }
       },
-      {
+      { 
         name: 'CATEGORIES_SERVICE',
         transport: Transport.TCP,
         options: {
           host: 'localhost',
           port: 4030
         }
-      }
+      },
+      {
+        name: 'NOTIFICATION_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ["amqp://localhost:5672"],
+          queue: 'notifications'
+        }
+      },
+      // {
+      //   name: 'AWS_SERVICE',
+      //   transport: Transport.RMQ,
+      //   options: {
+      //     urls: ["amqp://localhost:5672"],
+      //     queue: 'aws'
+      //   }
+      // },
     ]),
 
   ],

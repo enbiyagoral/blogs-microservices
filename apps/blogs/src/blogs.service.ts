@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { CreateBlogDto, UpdateBlogDto } from './dto';
 import { BlogsRepository } from './blogs.repository';
 import { ClientProxy } from '@nestjs/microservices';
@@ -6,11 +6,17 @@ import { BlogDocument } from './models/blogs.schema';
 
 @Injectable()
 export class BlogsService {
+
   constructor(
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
     @Inject('CATEGORIES_SERVICE') private readonly categoriesClient: ClientProxy,
+    @Inject('NOTIFICATION_SERVICE') private readonly notificationsService: ClientProxy,
+    // @Inject('AWS_SERVICE') private readonly awsClient: ClientProxy,
     private readonly blogsRepository: BlogsRepository
     ){}
+
+  
+  
   getHello(): string {
     return 'Hello World!';
   }
@@ -18,39 +24,30 @@ export class BlogsService {
   async createBlog(userId: string, createBlogDto: CreateBlogDto, file: Express.Multer.File) {
     try {
       const { title, description, context, category } = createBlogDto
+      const blog = await this.blogsRepository.create({
+        ...createBlogDto,
+        author: userId
+      });
 
-      const blog = Object.assign({}, createBlogDto, { author: userId})
-
-      const newBlog = await this.blogsRepository.create(blog)
-      console.log(newBlog);
-
+      // Kullanıcıya blog ekle
+      const userPayload = { blogId: blog._id, authorId: blog.author};
+      const addBLogFromUser = await this.usersClient.send({cmd:'addBlogFromUser'}, userPayload).toPromise();
+      console.log(addBLogFromUser);
       
-      const userPayload = { blogId: newBlog._id, authorId: newBlog.author};
-      const addBLogFromUser = this.usersClient.send({cmd:'addBlogFromUser'}, userPayload).toPromise();
-      
-      const categoryPayload = { categoryId: category, blogId: newBlog._id }
-      const addBlogToCategory = this.categoriesClient.send({cmd: 'addBlogToCategory'}, categoryPayload).toPromise();
-      
-      return newBlog;
+      // Kategoriye blog ekle
+      const categoryPayload = { categoryId: category, blogId: blog._id }
+      const addBlogToCategory = await this.categoriesClient.send({cmd: 'addBlogToCategory'}, categoryPayload).toPromise();
+      if (file) {
+        // const parms = { blogId: blog._id, file:file}
+        // const uploadPhoto = this.awsClient.send({cmd: 'uploadedPhoto'}, parms).toPromise();
+        // const uploadPhoto = await this.awsService.uploadPhoto(newBlog.id.toString(), file)
+        // newBlog.image = uploadPhoto.Location
+        // await newBlog.save()
+      }
 
-
-      // if (file) {
-      //   console.log('object')
-      //   // const uploadPhoto = await this.awsService.uploadPhoto(newBlog.id.toString(), file)
-      //   // newBlog.image = uploadPhoto.Location
-      //   // await newBlog.save()
-      //   console.log('Fotoğraf yüklendi!')
-      // }
-
-     
-
-      // const userEmails = await this.blogsCommonService.getSubscriber(userId)
-
-      // await Promise.all(
-      //   userEmails.map(async (userEmail) => {
-      //     this.mailService.subscribeBlogs(userEmail, newBlog.id)
-      //   }),
-      // )
+      // Abonelere bildirim gönder
+      await this.notificationsService.emit('notify_email', { userId, blogLink: blog.slug}).toPromise();
+      return blog;
 
       // await this.esService.addBlog(newBlog)
 
@@ -201,7 +198,6 @@ export class BlogsService {
     return 'Already Not Saved to Blog'
   }
 
-
   async deleteBlogBySlug(slug: string) {
     try {
       const blog = await this.blogsRepository.findOneAndDelete({ slug })
@@ -226,7 +222,7 @@ export class BlogsService {
 
   async handleRemoveCategoryFromBlog({updateQuery, updateFields}: any){
     const result = await this.blogsRepository.updateMany(updateQuery, updateFields);
-    return result;
+    return { success: true, message: "Removed Category From Blog", data: "null"};
   }
 
   async handleDeleteBlogsFromByUser({authorId}: any){

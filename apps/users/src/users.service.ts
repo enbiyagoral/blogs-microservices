@@ -3,7 +3,6 @@ import { UsersRepository } from './users.repository';
 import { SignUpDto } from 'apps/auth/src/dto/sign-up.dto';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from 'apps/auth/src/dto/sign-in.dto';
-import { NotFoundError } from 'rxjs';
 import { UserDocument } from './models/users.schema';
 import { FilterQuery } from 'mongoose';
 import { ClientProxy } from '@nestjs/microservices';
@@ -257,5 +256,20 @@ export class UsersService {
     const users = await this.usersRepository.findOne({ _id })
     console.log(users.following);
     return users.following
+  }
+
+  async handleGetSubscriber(data: any){
+
+    const user = await this.usersRepository.findOne({_id: data.userId.toString()})
+    const subscriberEmails: string[] = []
+    await Promise.all(
+      user.subscriber.map(async (subscriberId) => {
+        const subscriber = await this.usersRepository.findOne({_id:subscriberId.toString()})
+        if (subscriber) {
+          subscriberEmails.push(subscriber.email)
+        }
+      }),
+    )
+    return subscriberEmails
   }
 }

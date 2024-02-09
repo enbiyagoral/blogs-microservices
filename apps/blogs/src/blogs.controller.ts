@@ -1,21 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UploadedFile, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, OnModuleInit, Param, Patch, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { AuthGuard, CurrentUser } from '@app/common/auth';
 import { CreateBlogDto, UpdateBlogDto } from './dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('blogs')
-export class BlogsController {
+export class BlogsController{
   constructor(private readonly blogsService: BlogsService) {}
+
 
   @UseGuards(AuthGuard)
   @Post()
+  @UseInterceptors(FileInterceptor('blog-photo'))
   async createBlogs(
     @CurrentUser() userId: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() createBlogDto: CreateBlogDto,
   ) {
-    console.log("createBlogDto")
     return await this.blogsService.createBlog(userId, createBlogDto, file)
   }
 
@@ -59,8 +61,8 @@ export class BlogsController {
   }
 
   @MessagePattern({cmd: 'removeCategoryFromBlog'})
-  async removeCategoryFromBlog(@Payload() data: any){
-    return await this.blogsService.handleRemoveCategoryFromBlog(data);
+  async removeCategoryFromBlog(@Payload() {updateQuery, updateFields}: any){
+    return await this.blogsService.handleRemoveCategoryFromBlog({updateQuery, updateFields});
   }
 
   @MessagePattern({cmd: 'deleteBlogsFromByUser'})
