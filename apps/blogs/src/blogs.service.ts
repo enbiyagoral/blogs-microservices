@@ -3,10 +3,10 @@ import { CreateBlogDto, UpdateBlogDto } from './dto';
 import { BlogsRepository } from './blogs.repository';
 import { ClientProxy } from '@nestjs/microservices';
 import { BlogDocument } from './models/blogs.schema';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class BlogsService {
-
   constructor(
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
     @Inject('CATEGORIES_SERVICE') private readonly categoriesClient: ClientProxy,
@@ -260,6 +260,29 @@ export class BlogsService {
   async handleFindBlogsByUserId({payload}: any){
     return await this.blogsRepository.find({ author: { $in: [payload._id] } });
     
+  }
+
+  async handleIsExistBlog(slug: string) {
+    try {
+      const blog = await this.blogsRepository.findOne({slug});
+      return blog._id;
+    } catch (error) {
+      console.log(error)
+    }
+    
+  }
+
+  async handleAddCommentToBlog(blogId: string, commentId: string) {
+    try {
+      const response = await this.blogsRepository.findOneAndUpdate({_id: blogId}, {
+        $push: {
+          comments: commentId,
+        }
+      });
+      return response;
+    } catch (error) {
+      console.log(error)
+    }
   }
   
 }

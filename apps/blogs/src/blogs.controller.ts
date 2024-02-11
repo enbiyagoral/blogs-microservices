@@ -84,4 +84,14 @@ export class BlogsController{
   async findBlogsByUserId(@Payload() data:any){
     return await this.blogsService.handleFindBlogsByUserId(data);
   }
+
+  @MessagePattern({cmd: 'isExistBlog'})
+  async isExistBlog(@Payload() {slug}:any){
+    return await this.blogsService.handleIsExistBlog(slug);
+  }
+
+  @MessagePattern({cmd: 'addCommentToBlog'})
+  async addCommentToBlog(@Payload() {blogId , commentId}:any){
+    return await this.blogsService.handleAddCommentToBlog(blogId, commentId);
+  }
 }

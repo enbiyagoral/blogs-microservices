@@ -22,8 +22,8 @@ export class BlogDocument extends AbstractDocument{
   @Prop({ required: true, minlength: 50, maxlength: 4000 })
   context: string
 
-  // @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }] })
-  // comments: Comment[]
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'CommentDocuments' }] })
+  comments: Comment[]
 
   @Prop({ type: Date, default: Date.now })
   publishDate: Date
