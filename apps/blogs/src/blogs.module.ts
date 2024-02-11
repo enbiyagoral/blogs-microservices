@@ -22,7 +22,7 @@ import * as Joi from 'joi';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        MONGODB_URI: Joi.string().required(),
+        ES_INDEX: Joi.string().required(),
       })
     }),
     ClientsModule.register([
@@ -50,14 +50,22 @@ import * as Joi from 'joi';
           queue: 'notifications'
         }
       },
-      // {
-      //   name: 'AWS_SERVICE',
-      //   transport: Transport.RMQ,
-      //   options: {
-      //     urls: ["amqp://localhost:5672"],
-      //     queue: 'aws'
-      //   }
-      // },
+      {
+        name: 'AWS_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ["amqp://localhost:5672"],
+          queue: 'aws'
+        }
+      },
+      {
+        name: 'ES_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ["amqp://localhost:5672"],
+          queue: 'search'
+        }
+      },
     ]),
 
   ],

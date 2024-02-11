@@ -12,7 +12,6 @@ export class NotificationsController {
 
   @EventPattern('notify_email')
   async notifyEmail(@Payload() data: any) {
-    console.log(data);
     const userEmails = await this.usersClient.send({cmd: 'getSubscriber'}, {userId: data.userId}).toPromise();
 
     for (let i=0; i < userEmails.length; i++) {

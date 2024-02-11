@@ -11,15 +11,10 @@ export class BlogsService {
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
     @Inject('CATEGORIES_SERVICE') private readonly categoriesClient: ClientProxy,
     @Inject('NOTIFICATION_SERVICE') private readonly notificationsService: ClientProxy,
-    // @Inject('AWS_SERVICE') private readonly awsClient: ClientProxy,
-    private readonly blogsRepository: BlogsRepository
-    ){}
+    @Inject('AWS_SERVICE') private readonly awsClient: ClientProxy,
+    @Inject('ES_SERVICE') private readonly esClient: ClientProxy,
 
-  
-  
-  getHello(): string {
-    return 'Hello World!';
-  }
+  private readonly blogsRepository: BlogsRepository){}
 
   async createBlog(userId: string, createBlogDto: CreateBlogDto, file: Express.Multer.File) {
     try {
@@ -32,14 +27,15 @@ export class BlogsService {
       // Kullanıcıya blog ekle
       const userPayload = { blogId: blog._id, authorId: blog.author};
       const addBLogFromUser = await this.usersClient.send({cmd:'addBlogFromUser'}, userPayload).toPromise();
-      console.log(addBLogFromUser);
       
       // Kategoriye blog ekle
       const categoryPayload = { categoryId: category, blogId: blog._id }
       const addBlogToCategory = await this.categoriesClient.send({cmd: 'addBlogToCategory'}, categoryPayload).toPromise();
+
       if (file) {
         // const parms = { blogId: blog._id, file:file}
-        // const uploadPhoto = this.awsClient.send({cmd: 'uploadedPhoto'}, parms).toPromise();
+        // console.log(parms);
+        // const uploadPhoto = this.awsClient.emit('uploadedPhoto', parms).toPromise();
         // const uploadPhoto = await this.awsService.uploadPhoto(newBlog.id.toString(), file)
         // newBlog.image = uploadPhoto.Location
         // await newBlog.save()
@@ -47,12 +43,12 @@ export class BlogsService {
 
       // Abonelere bildirim gönder
       await this.notificationsService.emit('notify_email', { userId, blogLink: blog.slug}).toPromise();
+
+      // ElasticSearch'e bloğu ekle.
+      await this.esClient.emit('blogAdded',{blog}).toPromise();
+      
       return blog;
 
-      // await this.esService.addBlog(newBlog)
-
-
-      // return { newBlog }
     } catch (error) {
       console.error('Error creating blog:', error)
       throw new Error('Error creating blog')
@@ -99,6 +95,8 @@ export class BlogsService {
         { _id: blog._id },
         { $set: updatedFields },
       );
+      
+      await this.esClient.emit('blogUpdated', { blog: blog._id, updatedFieldDto: updatedFields}).toPromise();
 
       if (!updatedBlog) {
         throw new Error('Error updating blog');
@@ -206,12 +204,16 @@ export class BlogsService {
         throw new NotFoundException('Blog not found')
       }
 
-      // await this.blogsCommonService.removeCommentFromBlog(blog.id)
+      // Kullanıcının listesinden kaldırma işlemi
       const userPayload = { authorId: blog.author.toString(), blogId: blog._id}
       const removeBlogFromUser = this.usersClient.send({cmd: 'removeBlogFromUser'}, userPayload).toPromise();
+
+      // Kategorilerden kaldırma işlemi
       const categoryPayload = { categoryId: blog.category._id, blogId: blog._id};
       const removeBlogFromCategory = this.categoriesClient.send({cmd: 'removeBlogFromCategory'}, categoryPayload).toPromise();
-      // await this.esService.deleteByQueryBlog(blog.id)
+
+      // Elastic Search'ten kaldırma işlemi.
+      await this.esClient.emit('blogDeleted', { blog: blog._id}).toPromise();
 
       return blog
     } catch (error) {

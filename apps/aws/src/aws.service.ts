@@ -6,8 +6,7 @@ import { Readable } from 'stream'
 
 @Injectable()
 export class AwsService {
-  private s3: S3
-
+  private s3: S3;
   constructor(private readonly awsConfigService: AwsConfigService) {
     this.s3 = new S3({
       accessKeyId: this.awsConfigService.accessKeyId,
@@ -15,14 +14,13 @@ export class AwsService {
     })
   }
 
-  async uploadPhoto(blogId: string, file: Express.Multer.File) {
-    const fileStream = Readable.from(file.buffer);
+  async uploadPhoto(blogId: any, file: any) {
 
-    const uploadParams: S3.PutObjectRequest = {
-      Bucket: "imageofblogs",
+    const uploadParams = {
+      Bucket: this.awsConfigService.bucketName,
       Key: String(blogId),
-      Body: fileStream,
-      ContentType: 'image/jpeg',
+      Body: file.buffer,
+      ContentType: 'image/jpeg'
     }
     const uploadResult = await this.s3.upload(uploadParams).promise()
     return { success: true, message: 'YÜkleme başarılı', data: uploadResult.Location}

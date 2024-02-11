@@ -6,8 +6,9 @@ import { EventPattern, MessagePattern, Payload, Transport } from '@nestjs/micros
 export class AwsController {
   constructor(private readonly awsService: AwsService) {}
 
-  @MessagePattern({cmd: 'uploadedPhoto'})
+  @EventPattern('uploadedPhoto')
   async deneme(@Payload() {blogId, file}: any){
-      return await this.awsService.uploadPhoto(blogId, file);
+    
+    return await this.awsService.uploadPhoto(blogId, file);
     }
 }

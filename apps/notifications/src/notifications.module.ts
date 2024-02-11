@@ -9,6 +9,13 @@ import * as Joi from 'joi';
 @Module({
   imports: [
     LoggerModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        USER: Joi.string().required(),
+        PASS: Joi.string().required(),
+      }),
+    }),
     ClientsModule.register([
       { 
         name: 'USERS_CLIENT',

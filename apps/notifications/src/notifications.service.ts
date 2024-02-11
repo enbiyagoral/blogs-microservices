@@ -1,21 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as Mailgen from 'mailgen';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class NotificationsService {
   private transporter: nodemailer.Transporter;
   private mailGenerator: Mailgen;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       host: 'smtp.gmail.email',
       port: 587,
       secure: true,
       auth: {
-        user: process.env.USER,
-        pass: process.env.PASS,
+        user: this.configService.get('MAIL_USER'),
+        pass: this.configService.get('PASS'),
       }
     });
 
@@ -30,6 +31,7 @@ export class NotificationsService {
 
   async subscribeBlogs(userEmails: string, blogLink: string): Promise<boolean> {
     try {
+      
       const email = {
         body: {
           intro: blogLink,
@@ -39,7 +41,7 @@ export class NotificationsService {
 
       const emailBody = await this.mailGenerator.generate(email);
       const message = {
-        from: process.env.USER,
+        from: this.configService.get('USER'),
         to: userEmails.toString(),
         subject: 'A New Blog',
         html: emailBody
