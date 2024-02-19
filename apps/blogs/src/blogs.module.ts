@@ -9,6 +9,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from '@app/common';
 import * as Joi from 'joi';
+import { BlogsMessagingController } from './blogs-messaging.controller';
 
 
 @Module({
@@ -69,7 +70,7 @@ import * as Joi from 'joi';
     ]),
 
   ],
-  controllers: [BlogsController],
+  controllers: [BlogsController, BlogsMessagingController],
   providers: [BlogsService, BlogsRepository],
 })
 export class BlogsModule {}

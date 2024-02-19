@@ -5,7 +5,7 @@ import { Logger} from 'nestjs-pino';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(UsersModule);
+  const app = await NestFactory.create(UsersModule);  
   app.connectMicroservice({
     transport : Transport.TCP,
     options: {

@@ -9,7 +9,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class BlogsController{
   constructor(private readonly blogsService: BlogsService) {}
 
-
   @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('blog-photo'))

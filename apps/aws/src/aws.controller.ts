@@ -8,7 +8,7 @@ export class AwsController {
 
   @EventPattern('uploadedPhoto')
   async deneme(@Payload() {blogId, file}: any){
-    
+    console.log(file)
     return await this.awsService.uploadPhoto(blogId, file);
     }
 }

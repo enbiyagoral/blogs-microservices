@@ -64,7 +64,6 @@ export class CategoriesService {
         const updateFields = { $set: { category: null } }
 
         const removeCategoryFromBlog = await this.blogsClient.send({cmd: 'removeCategoryFromBlog'}, {updateQuery, updateFields}).toPromise();
-        // const updateResult = await this.blogsClient.send(updateQuery, updateFields).toPromise)()
         const deletedCategory = await this.categoriesRepository.findOneAndDelete({_id: category._id})
 
         if (!deletedCategory) {
@@ -81,14 +80,14 @@ export class CategoriesService {
     }
   }
 
-  async handleAddBlogToCategory({categoryId, blogId}: any){
+  async handleAddBlogToCategory(blogId: string, categoryId: string){
     const category = await this.categoriesRepository.findOneAndUpdate({_id: categoryId}, {
       $push: {
         blogs: blogId
       }
     });
 
-    return { success: true, data: category, message: 'Kategori oluşturuldu!' }
+    return { success: true, message: 'Kategori oluşturuldu!' }
   }
 
   async handleRemoveBlogFromCategory({categoryId, blogId}){

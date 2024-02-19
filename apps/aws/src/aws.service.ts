@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common'
 import { S3 } from 'aws-sdk'
 import { AwsConfigService } from './config/aws.config'
-import { Readable } from 'stream'
+
 
 @Injectable()
 export class AwsService {
@@ -15,14 +15,15 @@ export class AwsService {
   }
 
   async uploadPhoto(blogId: any, file: any) {
+    var base64data = Buffer.from(file.buffer);
 
     const uploadParams = {
       Bucket: this.awsConfigService.bucketName,
       Key: String(blogId),
-      Body: file.buffer,
-      ContentType: 'image/jpeg'
+      Body: base64data,
+      ContentType: 'image/*'
     }
     const uploadResult = await this.s3.upload(uploadParams).promise()
-    return { success: true, message: 'YÜkleme başarılı', data: uploadResult.Location}
+    return { success: true, message: 'Yukleme basarili', data: uploadResult.Location}
   }
 }

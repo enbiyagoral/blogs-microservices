@@ -5,6 +5,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { LoggerModule } from '@app/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { SearchMessagingController } from './search-messaging.controller';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import * as Joi from 'joi';
       node: 'http://localhost:9200',
     })
   ],
-  controllers: [SearchController],
+  controllers: [SearchController, SearchMessagingController],
   providers: [SearchService],
 })
 export class SearchModule implements OnModuleInit{

@@ -19,6 +19,7 @@ export class BlogsService {
   async createBlog(userId: string, createBlogDto: CreateBlogDto, file: Express.Multer.File) {
     try {
       const { title, description, context, category } = createBlogDto
+      
       const blog = await this.blogsRepository.create({
         ...createBlogDto,
         author: userId
@@ -31,11 +32,11 @@ export class BlogsService {
       // Kategoriye blog ekle
       const categoryPayload = { categoryId: category, blogId: blog._id }
       const addBlogToCategory = await this.categoriesClient.send({cmd: 'addBlogToCategory'}, categoryPayload).toPromise();
-
+      console.log("burad")
       if (file) {
-        // const parms = { blogId: blog._id, file:file}
-        // console.log(parms);
-        // const uploadPhoto = this.awsClient.emit('uploadedPhoto', parms).toPromise();
+        const parms = { blogId: blog._id, file:file}
+        console.log(parms);
+        const uploadPhoto = this.awsClient.emit('uploadedPhoto', parms).toPromise();
         // const uploadPhoto = await this.awsService.uploadPhoto(newBlog.id.toString(), file)
         // newBlog.image = uploadPhoto.Location
         // await newBlog.save()
@@ -224,13 +225,13 @@ export class BlogsService {
 
   async handleRemoveCategoryFromBlog({updateQuery, updateFields}: any){
     const result = await this.blogsRepository.updateMany(updateQuery, updateFields);
-    return { success: true, message: "Removed Category From Blog", data: "null"};
+    return { success: true, message: "Removed Category From Blog"};
   }
 
   async handleDeleteBlogsFromByUser({authorId}: any){
     const result = await this.blogsRepository.deleteMany({author: authorId})
     console.log(result);
-    return result;
+    return { success: true, message: "Removed Blogs From User"};;
   }
 
   async handleGetMostLikedBlogs({ payload }: any) {

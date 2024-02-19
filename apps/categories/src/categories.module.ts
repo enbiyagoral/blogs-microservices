@@ -8,6 +8,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi'
 import { join } from 'path';
+import { CategoriesMessagingController } from './categories-messaging.controller';
 
 
 @Module({
@@ -34,7 +35,7 @@ import { join } from 'path';
       }
     ]),
   ],
-  controllers: [CategoriesController],
+  controllers: [CategoriesController, CategoriesMessagingController],
   providers: [CategoriesService, CategoriesRepository],
 })
 export class CategoriesModule {}

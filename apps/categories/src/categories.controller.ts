@@ -31,17 +31,4 @@ export class CategoriesController {
   async deleteCategory(@Param('slug') slug: string) {
     return await this.categoriesService.deleteCategoryBySlug(slug)
   }
-
-  @MessagePattern({cmd: 'addBlogToCategory'})
-  async addBlogToCategory(@Payload() data: any){
-    console.log(data);
-    return this.categoriesService.handleAddBlogToCategory(data);
-  }
-
-  @MessagePattern({cmd: 'removeBlogFromCategory'})
-  async removeBlogFromCategory(@Payload() data:any){
-    return this.categoriesService.handleRemoveBlogFromCategory(data);
-  }
-
- 
 }

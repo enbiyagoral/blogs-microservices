@@ -16,10 +16,11 @@ export class AuthService {
     return 'Hello World!';
   }
 
-  async handleSignup(signupDto: SignUpDto){
+  handleSignup(signupDto: SignUpDto){
     try {
 
-      const response = await this.usersClient.send('handleSignup', {signupDto})
+      const response = this.usersClient.send('handleSignup', {signupDto}).toPromise();
+      console.log(response);
       return response
 
     } catch (error) {
@@ -30,9 +31,11 @@ export class AuthService {
 
   async handleLogin(signInDto:SignInDto){
     try {
-
       const response = await this.usersClient.send('handleLogin', {signInDto}).toPromise();
+      console.log(response);
+      
       const payload = { userId: response.data._id, email: response.data.email};
+      console.log(payload);
       return {
         userId: response.data._id,
         accessToken: this.jwtService.sign(payload),
@@ -42,7 +45,7 @@ export class AuthService {
       
 
     } catch (error) {
-      console.error('Error while emitting handleSignup:', error.message);
+      console.error('Error while emitting handleLogin:', error.message);
       throw error;
     }
   }

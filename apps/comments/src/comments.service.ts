@@ -6,9 +6,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { CreateReplyDto } from './dto/create-reply.dto';
 
 @Injectable()
-export class CommentsService {
-  
-  
+export class CommentsService {  
   constructor(
     private readonly commentRepository: CommentRepository,
     private readonly replyRepository: ReplyRepository,
@@ -22,7 +20,7 @@ export class CommentsService {
         throw new NotFoundException('Blog not found!');
       }
       const comment = await this.commentRepository.create({blogId: isExistBlog, context: createCommentDto.context});
-
+      
       const blog = await this.blogsClient.send({cmd: 'addCommentToBlog'}, { blogId: isExistBlog, commentId: comment._id }).toPromise()
 
       return comment;
@@ -40,4 +38,5 @@ export class CommentsService {
       
     }
   }
+
 }

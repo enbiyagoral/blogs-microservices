@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -6,23 +7,22 @@ import { DatabaseModule, LoggerModule } from '@app/common';
 import { UserDocument, UserSchema } from './models/users.schema';
 import { UsersRepository } from './users.repository';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { UsersMessagingController } from './users-messaging.controller';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+      })
+    }),
     JwtModule,
     DatabaseModule,
     DatabaseModule.forFeature([
       {name: UserDocument.name, schema: UserSchema}
     ]),
     LoggerModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      validationSchema: Joi.object({
-        MONGODB_URI: Joi.string().required(),
-      })
-    }),
     ClientsModule.register([
       {
         name: 'AUTH_CLIENT',
@@ -42,7 +42,7 @@ import * as Joi from 'joi';
       },
     ])
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, UsersMessagingController],
   providers: [UsersService, UsersRepository],
 })
 export class UsersModule {}

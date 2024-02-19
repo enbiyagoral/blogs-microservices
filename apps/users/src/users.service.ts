@@ -28,6 +28,7 @@ export class UsersService {
         birthdate,
         isVerified: false,
       });
+      console.log(user);
       return {success: true, data: user, message: "Kullanıcı oluşturuldu"};
     } catch (error) {
       console.log(error)

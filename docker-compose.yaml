@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  auth:
+    build:
+      context: .
+      args:
+        APP: auth
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+
+  comments:
+    build:
+      context: .
+      args:
+        APP: comments
+    ports:
+      - "3002:3000"
+
+  categories:
+    build:
+      context: .
+      args:
+        APP: categories
+    ports:
+      - "3003:3000"
+
+  search:
+    build:
+      context: .
+      args:
+        APP: search
+    ports:
+      - "3004:3000"
+
+  notifications:
+    build:
+      context: .
+      args:
+        APP: notifications
+    ports:
+      - "3005:3000"
+
+  blogs:
+    build:
+      context: .
+      args:
+        APP: blogs
+
+    ports:
+      - "3006:3000"
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - rabbitmq_go_net
+
+networks:
+  rabbitmq_go_net:
+    driver: bridge
